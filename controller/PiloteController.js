@@ -1,4 +1,4 @@
-import { getAllpilotes, addpilote, deletepiloteById, editpilotesById } from "../models/pilote.js";
+import { getAllpilotes, addpilote, deletepiloteById, editpilotesById, getOneByID, piloteLogin } from "../models/pilote.js";
 
 const pilotes = getAllpilotes();
 export function pilotesController(req, res) {
@@ -9,12 +9,17 @@ export function pilotesController(req, res) {
 }
 
 export function addpiloteController(req, res) {
-  const existing = pilotes.find((c) => c.id == req.body.id);
+  const existing = pilotes.find((c) => c.email === req.body.email);
   if (existing) {
-    return res.status(400).json({ message: "Le pilote existe déjà" });
+    return res.status(400).json({ message: "Le pilote à déjà un compte" });
   }
-  addpilote(req.body);
-  return res.status(200).json({ message: "pilote ajoutée au pilotes" });
+  const created = addpilote(req.body, res);
+  
+  if (created) {
+    return res.status(200).json({ message: "Pilote ajouté", pilote: created });
+  }
+
+  return res.status(500).json({ message: "Erreur lors de l'ajout du pilote" });
 }
 
 export function deletepilotesController(req, res) {
@@ -33,4 +38,28 @@ export function editpilotesController(req, res) {
     return res.status(400).json({ message: "Le pilote n'existe pas" });
   }
   return res.status(200).json({message : "Pilote modifié"});
+}
+
+export function getOneByIdController(req, res) {
+  const id = req.params.id;
+  const pilote = getOneByID(id);
+  if (!pilote) {
+    return res.status(404).json({ message: "Pilote non trouvé" });
+  }
+  return res.status(200).json(pilote);
+}
+
+export function piloteLoginController(req, res){
+  const email = req.body.email
+  const password = req.body.password
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email et mot de passe requis" });
+  }
+
+  const pilote = piloteLogin(email, password);
+  if (!pilote) {
+    return res.status(401).json({ message: "Identifiants invalides" });
+  }
+
+  return res.status(200).json({ message: "Connexion réussie", pilote });
 }

@@ -5,6 +5,7 @@ import {
   deleteCarById,
 } from "../models/garage.js";
 const garage = getAllGarage();
+
 export function GarageController(req, res) {
   if (garage.length === 0) {
     return res.status(400).json({ message: "Aucune voiture trouvée" });
@@ -38,3 +39,4 @@ export function editCarsController(req, res) {
   }
   return res.status(200).json({ message: "Voiture modifiée " });
 }
+
