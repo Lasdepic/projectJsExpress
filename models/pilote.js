@@ -1,5 +1,5 @@
 import mongoose from "../config/database.js";
-
+import bcrypt from "bcrypt";
 const piloteSchema = new mongoose.Schema({
   name: {type: String},
   firstName: {type: String},
@@ -7,6 +7,7 @@ const piloteSchema = new mongoose.Schema({
   password: {type: String}
 });
 
+const SALT_ROUNDS = 10;
 const Pilote = mongoose.model("Pilote", piloteSchema);
 
 export async function getAllpilotes() {
@@ -29,6 +30,9 @@ export async function addpilote(newPilote) {
   if (!passwordRegex.test(newPilote.password)) {
     return res.status(400).json({message :"Mot de passe invalide"});
   }
+
+  const hashedPassword = await bcrypt.hash(newPilote.password, SALT_ROUNDS);
+  newPilote.password = hashedPassword;
 
   const pilote = new Pilote(newPilote);
   return await pilote.save();
@@ -64,7 +68,14 @@ export async function piloteLogin(email, password) {
     return null;
   }
 
-  // vérif du pilote avec email password
-  const pilote = await Pilote.findOne({ email: email, password: password });
-  return pilote || null;
+  // on récupére le mail 
+  const pilote = await Pilote.findOne({ email: email });
+  if (!pilote) return null;
+
+  // compare le mp avec le hash
+  const match = await bcrypt.compare(password, pilote.password);
+  if (match) {
+    return pilote;
+  }
+  return null;
 }
