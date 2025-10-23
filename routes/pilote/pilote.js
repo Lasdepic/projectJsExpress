@@ -8,8 +8,8 @@ router.get("/pilote", pilotesController);
 router.get("/pilote/:id", getOneByIdController);
 
 // Méthode POST
-router.post('/pilote', addpiloteController);
-router.post('/pilote/login', piloteLoginController);
+router.post('/auth/register', addpiloteController);
+router.post('/auth/login', piloteLoginController);
 
 // Méthode DELETE
 router.delete("/pilote/:id", deletepilotesController);

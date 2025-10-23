@@ -1,25 +1,34 @@
-let garage = [];
+import mongoose from "../config/database.js";
 
-export function getAllGarage() {
-  return garage;
+const carSchema = new mongoose.Schema({
+  marque: { type: String },
+  modele: { type: String },
+  chevaux: { type: Number }
+});
+
+const Garage = mongoose.model("Garage", carSchema);
+
+export async function getAllGarage() {
+
+  return await Garage.find();
 }
 
-export function addCar(cars) {
-  garage.push(cars);
-  return cars;
+export async function addCar(car) {
+  return await Garage.create(car);
 }
 
-export function deleteCarById(cars) {
-  const indexOf = garage.indexOf(cars);
-  garage.splice(indexOf, 1);
+export async function deleteCarById(id) {
+
+  return await Garage.findByIdAndDelete(id);
 }
 
-export function editCarsById(id, newCar) {
-  const car = garage.find((c) => c.id == id);
-  if (!car){
+export async function editCarsById(id, newCar) {
+  const car = await Garage.findById(id);
+  if (!car) {
     return null;
-  } 
+  }
   car.marque = newCar.marque || car.marque;
-  car.modele = newCar.marque|| car.modele;
-  return car;
+  car.modele = newCar.modele || car.modele;
+  
+  return await car.save();
 }
